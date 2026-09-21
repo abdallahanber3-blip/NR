@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#020205">
+
+    <title>NR | Ultimate Cyber Telecom Intelligence</title>
+    <!-- XLSX Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Google Ultra-Modern Fonts: Syne & Rajdhani -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-magenta: #ff007f;
+            --neon-cyan: #00f0ff;
+            --neon-purple: #9d00ff;
+            --cyber-gradient: linear-gradient(135deg, #ff007f 0%, #9d00ff 50%, #00f0ff 100%);
+            --glass-bg: rgba(10, 10, 18, 0.75);
+            --glass-border: rgba(0, 240, 255, 0.3);
+            --bg-deep: #020205;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020205;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-purple);
+            border-radius: 10px;
+            box-shadow: 0 0 8px var(--neon-purple);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-cyan);
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(157, 0, 255, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.06) 0%, transparent 60%);
+            background-attachment: fixed;
+            padding: 16px 10px 60px 10px;
+            color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 30px 20px 80px 20px;
+            }
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 580px;
+        }
+
+        @media (min-width: 1024px) {
+            .app-container {
+                max-width: 1240px;
+            }
+        }
+
+        .app-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 20px 16px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8),
+                        inset 0 1px 3px rgba(0, 240, 255, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .app-card {
+                padding: 36px 30px;
+                border-radius: 36px;
+            }
+        }
+
+        .app-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-3d-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 4px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            animation: floatNexus 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatNexus {
+            0% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+            100% { transform: translateY(-6px) rotateX(6deg) rotateY(10deg); }
+        }
+
+        .cyber-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid transparent;
+        }
+
+        .cyber-ring-1 {
+            border-top-color: var(--neon-cyan);
+            border-bottom-color: var(--neon-magenta);
+            animation: spinC1 3.5s linear infinite;
+        }
+
+        .cyber-ring-2 {
+            border-left-color: var(--neon-purple);
+            border-right-color: var(--neon-cyan);
+            animation: spinC2 5.5s linear infinite;
+        }
+
+        .cyber-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 22px;
+            height: 22px;
+            background: var(--cyber-gradient);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--neon-cyan);
+            animation: coreGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes spinC1 {
+            0% { transform: rotateX(45deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(45deg) rotateY(360deg) rotateZ(360deg); }
+        }
+        @keyframes spinC2 {
+            0% { transform: rotateX(60deg) rotateY(45deg) rotateZ(0deg); }
+            100% { transform: rotateX(60deg) rotateY(45deg) rotateZ(-360deg); }
+        }
+        @keyframes coreGlow {
+            0% { transform: translate(-50%, -50%) scale(0.85); filter: brightness(1); }
+            100% { transform: translate(-50%, -50%) scale(1.15); filter: brightness(1.3); }
+        }
+
+        .app-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            background: var(--cyber-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .app-title { font-size: 32px; }
+        }
+
+        .app-title .badge-5g {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1.2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 2px 10px;
+            border-radius: 6px;
+            -webkit-text-fill-color: var(--neon-cyan);
+        }
+
+        .app-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            color: #94a3b8;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .upload-card {
+            background: rgba(6, 6, 12, 0.75);
+            border: 2px dashed rgba(157, 0, 255, 0.35);
+            border-radius: 20px;
+            padding: 20px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .upload-card:hover {
+            background: rgba(157, 0, 255, 0.05);
+            border-color: var(--neon-cyan);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            background: var(--cyber-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .btn-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--cyber-gradient);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 20px rgba(157, 0, 255, 0.3);
+        }
+
+        .search-wrapper {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (min-width: 768px) {
+            .search-wrapper {
+                flex-direction: row;
+            }
+            .btn-search, .btn-my-gps {
+                width: 160px !important;
+                flex: unset !important;
+            }
+        }
+
+        .input-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-cyan);
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 14px 14px 46px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(2, 2, 5, 0.85);
+            border: 1.5px solid rgba(0, 240, 255, 0.25);
+            border-radius: 14px;
+            color: #fff;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-action-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-search {
+            flex: 1;
+            padding: 13px;
+            background: var(--cyber-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 20px rgba(255, 0, 127, 0.3);
+        }
+
+        .btn-my-gps {
+            flex: 1;
+            padding: 13px;
+            background: rgba(0, 240, 255, 0.08);
+            color: var(--neon-cyan);
+            border: 1.5px solid var(--neon-cyan);
+            border-radius: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-my-gps:hover {
+            background: var(--neon-cyan);
+            color: #020205;
+        }
+
+        .sector-quick-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(4, 4, 10, 0.85);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(157, 0, 255, 0.25);
+            margin-top: 14px;
+            gap: 6px;
+        }
+
+        .sector-quick-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            color: var(--neon-cyan);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sector-quick-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-jump-sector {
+            background: rgba(157, 0, 255, 0.15);
+            border: 1.2px solid var(--neon-purple);
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-jump-sector:hover {
+            background: var(--neon-cyan);
+            color: #020205;
+            border-color: var(--neon-cyan);
+        }
+
+        .map-section {
+            margin-top: 14px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .map-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 240, 255, 0.05);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1.2px solid var(--neon-cyan);
+            gap: 8px;
+        }
+
+        .pro-coords-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Rajdhani', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .btn-top-copy {
+            background: var(--cyber-gradient);
+            border: none;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .map-wrapper-box {
+            position: relative;
+            width: 100%;
+        }
+
+        #siteMap {
+            width: 100%;
+            height: 360px;
+            border-radius: 20px;
+            border: 1.5px solid rgba(0, 240, 255, 0.25);
+            z-index: 1;
+        }
+
+        @media (min-width: 768px) {
+            #siteMap { height: 480px; }
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: rgba(8, 8, 16, 0.95) !important;
+            backdrop-filter: blur(15px);
+            color: #fff !important;
+            border: 1.2px solid var(--neon-cyan);
+            border-radius: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .leaflet-popup-tip {
+            background: rgba(8, 8, 16, 0.95) !important;
+        }
+
+        .tower-3d-marker {
+            width: 38px;
+            height: 38px;
+            background: radial-gradient(circle, var(--neon-cyan) 20%, transparent 70%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #020205;
+            font-size: 15px;
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        .user-gps-marker {
+            width: 34px;
+            height: 34px;
+            background: radial-gradient(circle, var(--neon-magenta) 20%, transparent 70%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            box-shadow: 0 0 20px var(--neon-magenta);
+        }
+
+        .elite-sector-badge {
+            background: rgba(2, 2, 5, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border: 1.2px solid var(--neon-cyan) !important;
+            color: #ffffff !important;
+            border-radius: 8px;
+            padding: 4px 10px !important;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap !important;
+            width: max-content !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            transform: translateY(-6px);
+        }
+
+        .compass-axis-label {
+            background: rgba(2, 2, 5, 0.85) !important;
+            backdrop-filter: blur(6px);
+            border: 1px solid var(--neon-cyan) !important;
+            color: #ffffff !important;
+            border-radius: 6px;
+            padding: 2px 6px !important;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            width: max-content !important;
+            display: inline-block !important;
+        }
+
+        .results-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 1024px) {
+            .results-list {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .result-card {
+            background: rgba(10, 10, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(157, 0, 255, 0.25);
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            will-change: transform, box-shadow;
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                        border-color 0.2s ease, 
+                        box-shadow 0.2s ease;
+            scroll-margin-top: 20px;
+        }
+
+        .result-card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 20px 50px rgba(0, 240, 255, 0.25);
+            transform: translate3d(0, -3px, 0);
+        }
+
+        .card-top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1.2px dashed rgba(157, 0, 255, 0.2);
+            padding-bottom: 12px;
+        }
+
+        .site-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .site-title i {
+            color: var(--neon-cyan);
+            font-size: 16px;
+        }
+
+        .sector-scatter-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: rgba(2, 2, 5, 0.75);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1.2px solid rgba(0, 240, 255, 0.12);
+        }
+
+        .sector-pill {
+            position: relative;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            will-change: transform;
+            transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+
+        .sector-pill:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            transform: scale(1.06);
+        }
+
+        .sector-pill.active {
+            background: var(--cyber-gradient);
+            color: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+            transform: scale(1.1);
+        }
+
+        .pci-huge-badge {
+            background: rgba(157, 0, 255, 0.1);
+            color: var(--neon-cyan);
+            border: 1.2px solid var(--neon-purple);
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Rajdhani', monospace;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .info-box {
+            background: rgba(2, 2, 5, 0.65);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1.2px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .info-label {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #f3f4f6;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .status-msg {
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .dev-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .dev-footer span {
+            color: var(--neon-cyan);
+            font-weight: 700;
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 220px;
+            background: var(--cyber-gradient);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 12px;
+            padding: 12px 18px;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.5);
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-card">
+        <div class="app-header">
+            <div class="logo-3d-wrapper">
+                <div class="cyber-ring cyber-ring-1"></div>
+                <div class="cyber-ring cyber-ring-2"></div>
+                <div class="cyber-core"></div>
+            </div>
+
+            <div class="app-title">NR <span class="badge-5g">CYBER PRO</span></div>
+            <div class="app-subtitle">Next-Gen Spatial Telecom Intelligence</div>
+        </div>
+
+        <div class="upload-card" onclick="document.getElementById('excelFile').click()">
+            <i class="fa-solid fa-cloud-arrow-down upload-icon"></i>
+            <div style="font-weight: 700; font-size: 14px; font-family: 'Rajdhani'; color: #fff; letter-spacing: 1px;">UPLOAD CYBER DATABASE</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 3px;">Excel Network Sheet (.xlsx, .xls)</div>
+            <span class="btn-upload"><i class="fa-solid fa-file-shield"></i> BROWSE FILE</span>
+            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;" onchange="handleFile(event)">
+            <div id="fileStatus" class="status-msg"></div>
+        </div>
+
+        <div class="search-wrapper">
+            <div class="input-box">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <input type="text" id="searchInput" placeholder="Search Site, Cell Name, PCI..." onkeyup="if(event.key === 'Enter') searchData()">
+            </div>
+            <div class="btn-action-group">
+                <button class="btn-search" onclick="searchData()">
+                    <i class="fa-solid fa-bolt-lightning"></i> LOCATE
+                </button>
+                <button class="btn-my-gps" onclick="locateUserGPS()">
+                    <i class="fa-solid fa-location-crosshairs"></i> MY GPS
+                </button>
+            </div>
+        </div>
+
+        <div id="sectorQuickBar" class="sector-quick-bar">
+            <span class="sector-quick-title"><i class="fa-solid fa-crosshairs" style="color:var(--neon-cyan);"></i> JUMP TO SECTOR:</span>
+            <div class="sector-quick-btns" id="sectorJumpBtnsContainer"></div>
+        </div>
+
+        <div id="mapSection" class="map-section">
+            <div class="map-header-bar">
+                <div class="pro-coords-display">
+                    <i class="fa-solid fa-location-dot" style="color:var(--neon-cyan);"></i>
+                    <span id="topCoordsText">0.000000, 0.000000</span>
+                </div>
+                <button class="btn-top-copy" onclick="copyTopCoords()">
+                    <i class="fa-regular fa-copy"></i> COPY
+                </button>
+            </div>
+
+            <div class="map-wrapper-box">
+                <div id="siteMap"></div>
+            </div>
+        </div>
+
+        <div id="statsSection" style="display:none; text-align:center; margin-top:14px;">
+            <span id="stats" style="font-size: 12px; color: #94a3b8; font-family: 'Rajdhani', sans-serif; letter-spacing:1px; font-weight:700;"></span>
+        </div>
+
+        <div id="resultsList" class="results-list"></div>
+    </div>
+
+    <div class="dev-footer">
+        Cyber-Engineered by <span>Abdullah Ali</span>
+    </div>
+</div>
+
+<div id="toast">COORDINATES COPIED!</div>
+
+<script>
+    let excelData = [];
+    let map = null;
+    let mapLayersGroup = null;
+    let currentSiteCoords = "";
+    let lastSiteLat = null;
+    let lastSiteLng = null;
+    let userMarker = null;
+    let activeSiteRecords = [];
+    let sectorMarkersMap = {};
+
+    function handleFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const statusDiv = document.getElementById('fileStatus');
+        statusDiv.innerHTML = `<span style="color: var(--neon-cyan);"><i class="fa-solid fa-spinner fa-spin"></i> Parsing Database...</span>`;
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            try {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheet];
+
+                const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+
+                excelData = json.map(row => {
+                    const getVal = (keyName) => {
+                        const foundKey = Object.keys(row).find(k => k.trim().toLowerCase() === keyName.toLowerCase());
+                        return foundKey ? String(row[foundKey]).trim() : '';
+                    };
+
+                    return {
+                        site: getVal('gNodeB Name') || getVal('Site Name') || getVal('eNodeB Name'),
+                        cell: getVal('Cell Name'),
+                        pci: getVal('PCI'),
+                        azimuth: parseFloat(getVal('Azimuth')) || 0,
+                        lat: parseFloat(getVal('Latitude')),
+                        lng: parseFloat(getVal('Longitude'))
+                    };
+                });
+
+                statusDiv.innerHTML = `<span style="color: var(--neon-cyan); font-weight:700;"><i class="fa-solid fa-circle-check"></i> Loaded ${excelData.length.toLocaleString()} Records</span>`;
+            } catch (err) {
+                statusDiv.innerHTML = `<span style="color: #ff007f;"><i class="fa-solid fa-triangle-exclamation"></i> Error Reading File</span>`;
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
+
+    function initMap(lat, lng, zoomLevel = 18) {
+        document.getElementById('mapSection').style.display = 'flex';
+
+        if (!map) {
+            map = L.map('siteMap').setView([lat, lng], zoomLevel);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: 'Esri Satellite'
+            }).addTo(map);
+
+            mapLayersGroup = L.layerGroup().addTo(map);
+        } else {
+            map.setView([lat, lng], zoomLevel);
+            mapLayersGroup.clearLayers();
+        }
+
+        setTimeout(() => { map.invalidateSize(); }, 200);
+    }
+
+    function drawCenterCrossLines(centerLat, centerLng) {
+        const spanDist = 250; 
+        const northPoint = getDestinationPoint(centerLat, centerLng, 0, spanDist);
+        const southPoint = getDestinationPoint(centerLat, centerLng, 180, spanDist);
+        const eastPoint = getDestinationPoint(centerLat, centerLng, 90, spanDist);
+        const westPoint = getDestinationPoint(centerLat, centerLng, 270, spanDist);
+
+        L.polyline([northPoint, southPoint], {
+            color: '#00f0ff',
+            weight: 2.5,
+            dashArray: '8, 8',
+            opacity: 0.9
+        }).addTo(mapLayersGroup);
+
+        L.polyline([eastPoint, westPoint], {
+            color: '#ff007f',
+            weight: 2.5,
+            dashArray: '8, 8',
+            opacity: 0.9
+        }).addTo(mapLayersGroup);
+
+        const nLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#ff007f;">N</b>` });
+        const sLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#94a3b8;">S</b>` });
+        const eLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#00f0ff;">E</b>` });
+        const wLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#94a3b8;">W</b>` });
+
+        L.marker(northPoint, { icon: nLabelIcon }).addTo(mapLayersGroup);
+        L.marker(southPoint, { icon: sLabelIcon }).addTo(mapLayersGroup);
+        L.marker(eastPoint, { icon: eLabelIcon }).addTo(mapLayersGroup);
+        L.marker(westPoint, { icon: wLabelIcon }).addTo(mapLayersGroup);
+    }
+
+    function jumpToMapSector(sectorNum, lat, lng) {
+        if (!map) return;
+        map.setView([lat, lng], 19);
+        const targetMarker = sectorMarkersMap[sectorNum];
+        if (targetMarker) {
+            targetMarker.openPopup();
+        }
+        const toast = document.getElementById("toast");
+        toast.innerText = `JUMPED TO MAP SECTOR S${sectorNum}`;
+        showToast();
+    }
+
+    function jumpToSectorCard(sectorNum) {
+        const targetCard = document.getElementById(`sector-card-${sectorNum}`);
+        if (targetCard) {
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            targetCard.style.borderColor = 'var(--neon-cyan)';
+            targetCard.style.boxShadow = '0 0 20px var(--neon-cyan)';
+            setTimeout(() => {
+                targetCard.style.borderColor = '';
+                targetCard.style.boxShadow = '';
+            }, 600);
+
+            const toast = document.getElementById("toast");
+            toast.innerText = `JUMPED TO SECTOR S${sectorNum}`;
+            showToast();
+        }
+    }
+
+    function locateUserGPS() {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        const toast = document.getElementById("toast");
+        toast.innerText = "REQUESTING GPS PERMISSION...";
+        showToast();
+
+        navigator.geolocation.getCurrentPosition((position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+            if (!map) {
+                initMap(userLat, userLng, 17);
+            }
+
+            if (userMarker) {
+                map.removeLayer(userMarker);
+            }
+
+            const gpsIcon = L.divIcon({
+                className: 'custom-user-marker',
+                html: `<div class="user-gps-marker"><i class="fa-solid fa-user-shield"></i></div>`,
+                iconSize: [34, 34],
+                iconAnchor: [17, 17]
+            });
+
+            userMarker = L.marker([userLat, userLng], {icon: gpsIcon}).addTo(map);
+            userMarker.bindPopup(`<b>Your GPS Location</b><br>Lat: ${userLat.toFixed(6)}<br>Lng: ${userLng.toFixed(6)}`).openPopup();
+
+            if (lastSiteLat && lastSiteLng) {
+                const distanceMeters = map.distance([userLat, userLng], [lastSiteLat, lastSiteLng]);
+                const distText = distanceMeters > 1000 ? (distanceMeters / 1000).toFixed(2) + " km" : distanceMeters.toFixed(0) + " meters";
+
+                L.polyline([[userLat, userLng], [lastSiteLat, lastSiteLng]], {
+                    color: '#ff007f',
+                    weight: 3,
+                    dashArray: '5, 5',
+                    opacity: 0.9
+                }).addTo(mapLayersGroup);
+
+                toast.innerText = `DISTANCE: ${distText}`;
+            } else {
+                toast.innerText = `GPS LOCKED & PERMISSION GRANTED!`;
+                map.setView([userLat, userLng], 17);
+            }
+            showToast();
+
+        }, (error) => {
+            let errorMsg = "Unable to retrieve your location.";
+            if (error.code === error.PERMISSION_DENIED) {
+                errorMsg = "Location permission denied! Please allow GPS access from your browser settings.";
+            } else if (error.code === error.POSITION_UNAVAILABLE) {
+                errorMsg = "Location information is unavailable.";
+            } else if (error.code === error.TIMEOUT) {
+                errorMsg = "The request to get user location timed out.";
+            }
+            alert(errorMsg);
+            toast.innerText = "GPS PERMISSION FAILED";
+            showToast();
+        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    }
+
+    function getDestinationPoint(lat, lng, azimuthDeg, distanceMeters) {
+        const R = 6378137;
+        const brng = azimuthDeg * (Math.PI / 180);
+        const lat1 = lat * (Math.PI / 180);
+        const lon1 = lng * (Math.PI / 180);
+
+        const lat2 = Math.asin(Math.sin(lat1) * Math.cos(distanceMeters / R) +
+                     Math.cos(lat1) * Math.sin(distanceMeters / R) * Math.cos(brng));
+        const lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(distanceMeters / R) * Math.cos(lat1),
+                     Math.cos(distanceMeters / R) - Math.sin(lat1) * Math.sin(lat2));
+
+        return [lat2 * (180 / Math.PI), lon2 * (180 / Math.PI)];
+    }
+
+    function createArcSectorPoints(centerLat, centerLng, startAngle, endAngle, radius) {
+        const points = [[centerLat, centerLng]];
+        const step = 8; 
+        for (let a = startAngle; a <= endAngle; a += step) {
+            points.push(getDestinationPoint(centerLat, centerLng, a, radius));
+        }
+        points.push(getDestinationPoint(centerLat, centerLng, endAngle, radius));
+        return points;
+    }
+
+    function renderSiteOnMap(siteRecords) {
+        if (!siteRecords || siteRecords.length === 0) return;
+
+        activeSiteRecords = siteRecords;
+        sectorMarkersMap = {};
+
+        const centerLat = siteRecords[0].lat;
+        const centerLng = siteRecords[0].lng;
+
+        if (isNaN(centerLat) || isNaN(centerLng)) return;
+
+        lastSiteLat = centerLat;
+        lastSiteLng = centerLng;
+        currentSiteCoords = `${centerLat}, ${centerLng}`;
+        document.getElementById('topCoordsText').innerText = currentSiteCoords;
+
+        initMap(centerLat, centerLng, 18);
+
+        drawCenterCrossLines(centerLat, centerLng);
+
+        const jumpBtnsContainer = document.getElementById('sectorJumpBtnsContainer');
+        jumpBtnsContainer.innerHTML = '';
+        document.getElementById('sectorQuickBar').style.display = 'flex';
+
+        const towerIcon = L.divIcon({
+            className: 'custom-tower-marker',
+            html: `<div class="tower-3d-marker"><i class="fa-solid fa-tower-cell"></i></div>`,
+            iconSize: [38, 38],
+            iconAnchor: [19, 19]
+        });
+
+        const towerMarker = L.marker([centerLat, centerLng], {icon: towerIcon}).addTo(mapLayersGroup);
+        towerMarker.bindPopup(`<b>${siteRecords[0].site}</b><br>Lat: ${centerLat}<br>Lng: ${centerLng}`).openPopup();
+
+        const neonColors = ['#00f0ff', '#ff007f', '#9d00ff', '#00ffcc', '#ffaa00'];
+
+        siteRecords.forEach((item, index) => {
+            if (isNaN(item.azimuth)) return;
+
+            const matchDigit = item.cell.match(/\d(?=\D*$)/);
+            const sectorNum = matchDigit ? matchDigit[0] : (index + 1);
+
+            const beamLength = 140; 
+            const beamHalfAngle = 25; 
+            const color = neonColors[index % neonColors.length];
+
+            const leftAngle = item.azimuth - beamHalfAngle;
+            const rightAngle = item.azimuth + beamHalfAngle;
+
+            const arcPoints = createArcSectorPoints(centerLat, centerLng, leftAngle, rightAngle, beamLength);
+            const tipPoint = getDestinationPoint(centerLat, centerLng, item.azimuth, beamLength + 25);
+
+            const polygon = L.polygon(arcPoints, {
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.5,
+                weight: 2
+            }).addTo(mapLayersGroup);
+
+            L.polyline([[centerLat, centerLng], tipPoint], {color: '#ffffff', weight: 1.5, opacity: 0.8}).addTo(mapLayersGroup);
+
+            const badgeIcon = L.divIcon({
+                className: 'elite-sector-badge',
+                html: `<i class="fa-solid fa-wifi" style="color:${color};"></i> S${sectorNum} (${item.azimuth}°) | <span style="color:#00f0ff;">PCI: ${item.pci}</span>`
+            });
+            const sectorMarker = L.marker(tipPoint, {icon: badgeIcon}).addTo(mapLayersGroup);
+
+            sectorMarkersMap[sectorNum] = sectorMarker;
+
+            const popupHtml = `
+                <div style="text-align:center;">
+                    <b style="color:${color}; font-size:13px;">${item.cell}</b><br>
+                    <b>Sector:</b> S${sectorNum} | <b>Azimuth:</b> ${item.azimuth}°<br>
+                    <b>PCI:</b> <span style="color:#00f0ff; font-weight:bold;">${item.pci}</span>
+                </div>
+            `;
+            polygon.bindPopup(popupHtml);
+            sectorMarker.bindPopup(popupHtml);
+
+            jumpBtnsContainer.innerHTML += `<button class="btn-jump-sector" onclick="jumpToMapSector('${sectorNum}', ${tipPoint[0]}, ${tipPoint[1]})">S${sectorNum}</button>`;
+        });
+    }
+
+    function copyTextToClipboard(textToCopy) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const toast = document.getElementById("toast");
+                toast.innerText = "COORDINATES COPIED!";
+                showToast();
+            }).catch(() => {
+                fallbackCopyText(textToCopy);
+            });
+        } else {
+            fallbackCopyText(textToCopy);
+        }
+    }
+
+    function fallbackCopyText(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            const successful = document.execCommand('copy');
+            const toast = document.getElementById("toast");
+            toast.innerText = successful ? "COORDINATES COPIED!" : "COPY FAILED";
+            showToast();
+        } catch (err) {
+            alert("Unable to copy to clipboard");
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function copyTopCoords() {
+        if (!currentSiteCoords) {
+            alert("Please search for a site first!");
+            return;
+        }
+        copyTextToClipboard(currentSiteCoords);
+    }
+
+    function copyCardCoords(coordsText) {
+        copyTextToClipboard(coordsText);
+    }
+
+    function showToast() {
+        const toast = document.getElementById("toast");
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 1800);
+    }
+
+    function searchData() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const resultsContainer = document.getElementById('resultsList');
+        const stats = document.getElementById('stats');
+        const statsSection = document.getElementById('statsSection');
+        const mapSec = document.getElementById('mapSection');
+        const quickBar = document.getElementById('sectorQuickBar');
+
+        resultsContainer.innerHTML = ''; 
+        mapSec.style.display = 'none';
+        quickBar.style.display = 'none';
+
+        if (excelData.length === 0) {
+            alert("Please upload an Excel database first!");
+            return;
+        }
+
+        if (!query) { 
+            statsSection.style.display = 'none'; 
+            return; 
+        }
+
+        const filtered = excelData.filter(item => 
+            item.site.toLowerCase().includes(query) || 
+            item.cell.toLowerCase().includes(query) || 
+            String(item.pci).toLowerCase().includes(query)
+        );
+
+        statsSection.style.display = 'block';
+        stats.innerHTML = `MATCHED SECTORS: <b style="color:var(--neon-cyan);">${filtered.length.toLocaleString()}</b>`;
+
+        if (filtered.length === 0) {
+            resultsContainer.innerHTML = `<div style="text-align:center; color:#64748b; padding:15px; font-size:11.5px; font-family:'Rajdhani'; letter-spacing:1px;">NO MATCHING SECTORS FOUND</div>`;
+            return;
+        }
+
+        renderSiteOnMap(filtered);
+
+        filtered.forEach((item, index) => {
+            const coords = `${item.lat},${item.lng}`;
+            const matchDigit = item.cell.match(/\d(?=\D*$)/);
+            const currentSectorNum = matchDigit ? matchDigit[0] : (index + 1);
+
+            resultsContainer.innerHTML += `
+                <div class="result-card" id="sector-card-${currentSectorNum}">
+                    <div class="card-top-header">
+                        <span class="site-title"><i class="fa-solid fa-tower-cell"></i> ${item.site}</span>
+                        <div class="pci-huge-badge">
+                            <span>PCI</span> ${item.pci}
+                        </div>
+                    </div>
+
+                    <div class="sector-scatter-wrapper">
+                        <div class="sector-pill ${currentSectorNum == '1' ? 'active' : ''}" onclick="jumpToSectorCard('1')">1</div>
+                        <div class="sector-pill ${currentSectorNum == '2' ? 'active' : ''}" onclick="jumpToSectorCard('2')">2</div>
+                        <div class="sector-pill ${currentSectorNum == '3' ? 'active' : ''}" onclick="jumpToSectorCard('3')">3</div>
+                        <div class="sector-pill ${currentSectorNum == '4' ? 'active' : ''}" onclick="jumpToSectorCard('4')">4</div>
+                    </div>
+
+                    <div class="card-details-grid">
+                        <div class="info-box">
+                            <div class="info-label">Cell Name</div>
+                            <div class="info-value">${item.cell || '-'}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Azimuth Angle</div>
+                            <div class="info-value" style="color:var(--neon-cyan);">${!isNaN(item.azimuth) ? item.azimuth + '°' : '-'}</div>
+                        </div>
+                    </div>
+
+                    <div class="card-details-grid" style="grid-template-columns: 1fr;">
+                        <div class="info-box" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div class="info-label">GPS Coords</div>
+                                <div class="info-value" style="color:var(--neon-cyan);">${coords}</div>
+                            </div>
+                            <button class="btn-top-copy" style="padding:6px 14px; font-size:10.5px;" onclick="copyCardCoords('${coords}')">COPY</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+</script>
+
+</body>
+</html>
