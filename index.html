@@ -357,55 +357,58 @@
             color: #020205;
         }
 
-        .sector-quick-bar {
+        .active-tags-container {
             display: none;
-            align-items: center;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
             background: rgba(4, 4, 10, 0.85);
             padding: 10px 14px;
             border-radius: 14px;
-            border: 1.5px solid rgba(157, 0, 255, 0.25);
-            margin-top: 14px;
-            gap: 6px;
-        }
-
-        .sector-quick-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 11px;
-            color: var(--neon-cyan);
-            font-weight: 700;
-            display: flex;
+            border: 1.2px solid rgba(157, 0, 255, 0.3);
             align-items: center;
-            gap: 4px;
         }
 
-        .sector-quick-btns {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .btn-jump-sector {
-            background: rgba(157, 0, 255, 0.15);
-            border: 1.2px solid var(--neon-purple);
+        .site-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 240, 255, 0.12);
+            border: 1px solid var(--neon-cyan);
             color: #fff;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border-radius: 10px;
             font-family: 'Rajdhani', sans-serif;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 700;
-            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            animation: fadeInTag 0.2s ease;
+        }
+
+        @keyframes fadeInTag {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .site-tag-remove {
+            background: rgba(255, 0, 127, 0.2);
+            color: var(--neon-magenta);
+            border: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .btn-jump-sector:hover {
-            background: var(--neon-cyan);
-            color: #020205;
-            border-color: var(--neon-cyan);
+        .site-tag-remove:hover {
+            background: var(--neon-magenta);
+            color: #fff;
+            box-shadow: 0 0 8px var(--neon-magenta);
         }
 
         .map-section {
@@ -528,19 +531,20 @@
             transform: translateY(-6px);
         }
 
-        .compass-axis-label {
-            background: rgba(2, 2, 5, 0.85) !important;
-            backdrop-filter: blur(6px);
-            border: 1px solid var(--neon-cyan) !important;
+        .site-name-map-label {
+            background: rgba(2, 2, 10, 0.9) !important;
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--neon-magenta) !important;
             color: #ffffff !important;
             border-radius: 6px;
-            padding: 2px 6px !important;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
+            padding: 3px 8px !important;
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
             text-align: center;
+            white-space: nowrap !important;
             width: max-content !important;
-            display: inline-block !important;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
         }
 
         .results-list {
@@ -569,12 +573,10 @@
             gap: 14px;
             position: relative;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-            will-change: transform, box-shadow;
             transform: translate3d(0, 0, 0);
             transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), 
                         border-color 0.2s ease, 
                         box-shadow 0.2s ease;
-            scroll-margin-top: 20px;
         }
 
         .result-card:hover {
@@ -627,26 +629,10 @@
             font-family: 'Rajdhani', sans-serif;
             font-size: 13px;
             font-weight: 700;
-            color: rgba(255, 255, 255, 0.4);
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            cursor: pointer;
-            will-change: transform;
-            transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
-        }
-
-        .sector-pill:hover {
-            border-color: var(--neon-cyan);
-            color: var(--neon-cyan);
-            transform: scale(1.06);
-        }
-
-        .sector-pill.active {
-            background: var(--cyber-gradient);
             color: #fff;
-            border-color: #fff;
+            background: var(--cyber-gradient);
+            border: 1px solid #fff;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
-            transform: scale(1.1);
         }
 
         .pci-huge-badge {
@@ -768,10 +754,10 @@
         <div class="search-wrapper">
             <div class="input-box">
                 <i class="fa-solid fa-satellite-dish"></i>
-                <input type="text" id="searchInput" placeholder="Search Site, Cell Name, PCI..." onkeyup="if(event.key === 'Enter') searchData()">
+                <input type="text" id="searchInput" placeholder="Type Site Name (e.g. CAI01) and click LOCATE..." onkeyup="if(event.key === 'Enter') addSiteTag()">
             </div>
             <div class="btn-action-group">
-                <button class="btn-search" onclick="searchData()">
+                <button class="btn-search" onclick="addSiteTag()">
                     <i class="fa-solid fa-bolt-lightning"></i> LOCATE
                 </button>
                 <button class="btn-my-gps" onclick="locateUserGPS()">
@@ -780,16 +766,16 @@
             </div>
         </div>
 
-        <div id="sectorQuickBar" class="sector-quick-bar">
-            <span class="sector-quick-title"><i class="fa-solid fa-crosshairs" style="color:var(--neon-cyan);"></i> JUMP TO SECTOR:</span>
-            <div class="sector-quick-btns" id="sectorJumpBtnsContainer"></div>
+        <div id="activeTagsContainer" class="active-tags-container">
+            <span style="font-family: 'Rajdhani'; font-size: 11px; color: var(--neon-cyan); font-weight: 700;"><i class="fa-solid fa-tags"></i> ACTIVE SITES:</span>
+            <div id="tagsList" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;"></div>
         </div>
 
         <div id="mapSection" class="map-section">
             <div class="map-header-bar">
                 <div class="pro-coords-display">
                     <i class="fa-solid fa-location-dot" style="color:var(--neon-cyan);"></i>
-                    <span id="topCoordsText">0.000000, 0.000000</span>
+                    <span id="topCoordsText">Multi-Sites View</span>
                 </div>
                 <button class="btn-top-copy" onclick="copyTopCoords()">
                     <i class="fa-regular fa-copy"></i> COPY
@@ -823,8 +809,8 @@
     let lastSiteLat = null;
     let lastSiteLng = null;
     let userMarker = null;
-    let activeSiteRecords = [];
-    let sectorMarkersMap = {};
+
+    let activeSiteQueries = [];
 
     function handleFile(e) {
         const file = e.target.files[0];
@@ -869,7 +855,7 @@
         reader.readAsArrayBuffer(file);
     }
 
-    function initMap(lat, lng, zoomLevel = 18) {
+    function initMap(lat, lng, zoomLevel = 13) {
         document.getElementById('mapSection').style.display = 'flex';
 
         if (!map) {
@@ -889,66 +875,51 @@
         setTimeout(() => { map.invalidateSize(); }, 200);
     }
 
-    function drawCenterCrossLines(centerLat, centerLng) {
-        const spanDist = 250; 
-        const northPoint = getDestinationPoint(centerLat, centerLng, 0, spanDist);
-        const southPoint = getDestinationPoint(centerLat, centerLng, 180, spanDist);
-        const eastPoint = getDestinationPoint(centerLat, centerLng, 90, spanDist);
-        const westPoint = getDestinationPoint(centerLat, centerLng, 270, spanDist);
+    function addSiteTag() {
+        const inputElem = document.getElementById('searchInput');
+        const queryVal = inputElem.value.trim();
 
-        L.polyline([northPoint, southPoint], {
-            color: '#00f0ff',
-            weight: 2.5,
-            dashArray: '8, 8',
-            opacity: 0.9
-        }).addTo(mapLayersGroup);
+        if (excelData.length === 0) {
+            alert("Please upload an Excel database first!");
+            return;
+        }
 
-        L.polyline([eastPoint, westPoint], {
-            color: '#ff007f',
-            weight: 2.5,
-            dashArray: '8, 8',
-            opacity: 0.9
-        }).addTo(mapLayersGroup);
+        if (!queryVal) return;
 
-        const nLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#ff007f;">N</b>` });
-        const sLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#94a3b8;">S</b>` });
-        const eLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#00f0ff;">E</b>` });
-        const wLabelIcon = L.divIcon({ className: 'compass-axis-label', html: `<b style="color:#94a3b8;">W</b>` });
+        if (!activeSiteQueries.includes(queryVal)) {
+            activeSiteQueries.push(queryVal);
+        }
 
-        L.marker(northPoint, { icon: nLabelIcon }).addTo(mapLayersGroup);
-        L.marker(southPoint, { icon: sLabelIcon }).addTo(mapLayersGroup);
-        L.marker(eastPoint, { icon: eLabelIcon }).addTo(mapLayersGroup);
-        L.marker(westPoint, { icon: wLabelIcon }).addTo(mapLayersGroup);
+        inputElem.value = '';
+        updateActiveTagsUI();
+        processAndRenderAllSites();
     }
 
-    function jumpToMapSector(sectorNum, lat, lng) {
-        if (!map) return;
-        map.setView([lat, lng], 19);
-        const targetMarker = sectorMarkersMap[sectorNum];
-        if (targetMarker) {
-            targetMarker.openPopup();
-        }
-        const toast = document.getElementById("toast");
-        toast.innerText = `JUMPED TO MAP SECTOR S${sectorNum}`;
-        showToast();
+    function removeSiteTag(siteName) {
+        activeSiteQueries = activeSiteQueries.filter(s => s !== siteName);
+        updateActiveTagsUI();
+        processAndRenderAllSites();
     }
 
-    function jumpToSectorCard(sectorNum) {
-        const targetCard = document.getElementById(`sector-card-${sectorNum}`);
-        if (targetCard) {
-            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    function updateActiveTagsUI() {
+        const container = document.getElementById('activeTagsContainer');
+        const tagsList = document.getElementById('tagsList');
+        tagsList.innerHTML = '';
 
-            targetCard.style.borderColor = 'var(--neon-cyan)';
-            targetCard.style.boxShadow = '0 0 20px var(--neon-cyan)';
-            setTimeout(() => {
-                targetCard.style.borderColor = '';
-                targetCard.style.boxShadow = '';
-            }, 600);
-
-            const toast = document.getElementById("toast");
-            toast.innerText = `JUMPED TO SECTOR S${sectorNum}`;
-            showToast();
+        if (activeSiteQueries.length === 0) {
+            container.style.display = 'none';
+            return;
         }
+
+        container.style.display = 'flex';
+        activeSiteQueries.forEach(site => {
+            tagsList.innerHTML += `
+                <div class="site-tag-pill">
+                    <span><i class="fa-solid fa-tower-cell" style="color:var(--neon-cyan);"></i> ${site}</span>
+                    <button class="site-tag-remove" onclick="removeSiteTag('${site}')"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+        });
     }
 
     function locateUserGPS() {
@@ -1002,15 +973,7 @@
             showToast();
 
         }, (error) => {
-            let errorMsg = "Unable to retrieve your location.";
-            if (error.code === error.PERMISSION_DENIED) {
-                errorMsg = "Location permission denied! Please allow GPS access from your browser settings.";
-            } else if (error.code === error.POSITION_UNAVAILABLE) {
-                errorMsg = "Location information is unavailable.";
-            } else if (error.code === error.TIMEOUT) {
-                errorMsg = "The request to get user location timed out.";
-            }
-            alert(errorMsg);
+            alert("Unable to retrieve your location. Please check GPS settings.");
             toast.innerText = "GPS PERMISSION FAILED";
             showToast();
         }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
@@ -1040,87 +1003,175 @@
         return points;
     }
 
-    function renderSiteOnMap(siteRecords) {
-        if (!siteRecords || siteRecords.length === 0) return;
+    function processAndRenderAllSites() {
+        const resultsContainer = document.getElementById('resultsList');
+        const stats = document.getElementById('stats');
+        const statsSection = document.getElementById('statsSection');
+        const mapSec = document.getElementById('mapSection');
 
-        activeSiteRecords = siteRecords;
-        sectorMarkersMap = {};
+        resultsContainer.innerHTML = '';
 
-        const centerLat = siteRecords[0].lat;
-        const centerLng = siteRecords[0].lng;
+        if (activeSiteQueries.length === 0) {
+            statsSection.style.display = 'none';
+            mapSec.style.display = 'none';
+            return;
+        }
 
-        if (isNaN(centerLat) || isNaN(centerLng)) return;
-
-        lastSiteLat = centerLat;
-        lastSiteLng = centerLng;
-        currentSiteCoords = `${centerLat}, ${centerLng}`;
-        document.getElementById('topCoordsText').innerText = currentSiteCoords;
-
-        initMap(centerLat, centerLng, 18);
-
-        drawCenterCrossLines(centerLat, centerLng);
-
-        const jumpBtnsContainer = document.getElementById('sectorJumpBtnsContainer');
-        jumpBtnsContainer.innerHTML = '';
-        document.getElementById('sectorQuickBar').style.display = 'flex';
-
-        const towerIcon = L.divIcon({
-            className: 'custom-tower-marker',
-            html: `<div class="tower-3d-marker"><i class="fa-solid fa-tower-cell"></i></div>`,
-            iconSize: [38, 38],
-            iconAnchor: [19, 19]
+        let matchedRecords = [];
+        activeSiteQueries.forEach(query => {
+            const qLower = query.toLowerCase();
+            const matches = excelData.filter(item => {
+                const targetString = `${item.site} ${item.cell} ${item.pci}`.toLowerCase();
+                return targetString.includes(qLower);
+            });
+            matchedRecords = matchedRecords.concat(matches);
         });
 
-        const towerMarker = L.marker([centerLat, centerLng], {icon: towerIcon}).addTo(mapLayersGroup);
-        towerMarker.bindPopup(`<b>${siteRecords[0].site}</b><br>Lat: ${centerLat}<br>Lng: ${centerLng}`).openPopup();
+        statsSection.style.display = 'block';
+        stats.innerHTML = `ACTIVE SITES: <b style="color:var(--neon-cyan);">${activeSiteQueries.length}</b> | MATCHED SECTORS: <b style="color:var(--neon-cyan);">${matchedRecords.length.toLocaleString()}</b>`;
 
+        if (matchedRecords.length === 0) {
+            resultsContainer.innerHTML = `<div style="text-align:center; color:#64748b; padding:15px; font-size:11.5px; font-family:'Rajdhani'; letter-spacing:1px;">NO MATCHING RECORDS FOUND FOR ACTIVE SITES</div>`;
+            mapSec.style.display = 'none';
+            return;
+        }
+
+        renderSitesOnMap(matchedRecords);
+
+        matchedRecords.forEach((item, index) => {
+            const coords = `${item.lat},${item.lng}`;
+            const matchDigit = item.cell.match(/\d(?=\D*$)/);
+            const currentSectorNum = matchDigit ? matchDigit[0] : (index + 1);
+
+            resultsContainer.innerHTML += `
+                <div class="result-card">
+                    <div class="card-top-header">
+                        <span class="site-title"><i class="fa-solid fa-tower-cell"></i> ${item.site}</span>
+                        <div class="pci-huge-badge">
+                            <span>PCI</span> ${item.pci}
+                        </div>
+                    </div>
+
+                    <div class="sector-scatter-wrapper">
+                        <div class="sector-pill">S${currentSectorNum}</div>
+                    </div>
+
+                    <div class="card-details-grid">
+                        <div class="info-box">
+                            <div class="info-label">Cell Name</div>
+                            <div class="info-value">${item.cell || '-'}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Azimuth Angle</div>
+                            <div class="info-value" style="color:var(--neon-cyan);">${!isNaN(item.azimuth) ? item.azimuth + '°' : '-'}</div>
+                        </div>
+                    </div>
+
+                    <div class="card-details-grid" style="grid-template-columns: 1fr;">
+                        <div class="info-box" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div class="info-label">GPS Coords (${item.site})</div>
+                                <div class="info-value" style="color:var(--neon-cyan);">${coords}</div>
+                            </div>
+                            <button class="btn-top-copy" style="padding:6px 14px; font-size:10.5px;" onclick="copyCardCoords('${coords}')">COPY</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function renderSitesOnMap(siteRecords) {
+        if (!siteRecords || siteRecords.length === 0) return;
+
+        const uniqueSitesMap = {};
+        siteRecords.forEach(item => {
+            if (!uniqueSitesMap[item.site] && !isNaN(item.lat) && !isNaN(item.lng)) {
+                uniqueSitesMap[item.site] = { lat: item.lat, lng: item.lng };
+            }
+        });
+
+        const firstValidKey = Object.keys(uniqueSitesMap)[0];
+        if (!firstValidKey) return;
+
+        const firstLat = uniqueSitesMap[firstValidKey].lat;
+        const firstLng = uniqueSitesMap[firstValidKey].lng;
+
+        lastSiteLat = firstLat;
+        lastSiteLng = firstLng;
+        currentSiteCoords = `${firstLat}, ${firstLng}`;
+        document.getElementById('topCoordsText').innerText = `Active Sites View (${Object.keys(uniqueSitesMap).length} Sites)`;
+
+        initMap(firstLat, firstLng, 14);
+
+        const bounds = L.latLngBounds();
         const neonColors = ['#00f0ff', '#ff007f', '#9d00ff', '#00ffcc', '#ffaa00'];
 
+        Object.keys(uniqueSitesMap).forEach(siteName => {
+            const sLat = uniqueSitesMap[siteName].lat;
+            const sLng = uniqueSitesMap[siteName].lng;
+            bounds.extend([sLat, sLng]);
+
+            const siteLabelIcon = L.divIcon({
+                className: 'site-name-map-label',
+                html: `<i class="fa-solid fa-tower-cell" style="color:var(--neon-cyan);"></i> ${siteName}`
+            });
+            L.marker([sLat, sLng], { icon: siteLabelIcon }).addTo(mapLayersGroup);
+
+            const towerIcon = L.divIcon({
+                className: 'custom-tower-marker',
+                html: `<div class="tower-3d-marker"><i class="fa-solid fa-tower-cell"></i></div>`,
+                iconSize: [38, 38],
+                iconAnchor: [19, 19]
+            });
+            const towerMarker = L.marker([sLat, sLng], {icon: towerIcon}).addTo(mapLayersGroup);
+            towerMarker.bindPopup(`<b>Site: ${siteName}</b><br>Lat: ${sLat}<br>Lng: ${sLng}`);
+        });
+
         siteRecords.forEach((item, index) => {
-            if (isNaN(item.azimuth)) return;
+            if (isNaN(item.azimuth) || isNaN(item.lat) || isNaN(item.lng)) return;
 
             const matchDigit = item.cell.match(/\d(?=\D*$)/);
             const sectorNum = matchDigit ? matchDigit[0] : (index + 1);
 
-            const beamLength = 140; 
+            const beamLength = 120; 
             const beamHalfAngle = 25; 
             const color = neonColors[index % neonColors.length];
 
             const leftAngle = item.azimuth - beamHalfAngle;
             const rightAngle = item.azimuth + beamHalfAngle;
 
-            const arcPoints = createArcSectorPoints(centerLat, centerLng, leftAngle, rightAngle, beamLength);
-            const tipPoint = getDestinationPoint(centerLat, centerLng, item.azimuth, beamLength + 25);
+            const arcPoints = createArcSectorPoints(item.lat, item.lng, leftAngle, rightAngle, beamLength);
+            const tipPoint = getDestinationPoint(item.lat, item.lng, item.azimuth, beamLength + 20);
 
             const polygon = L.polygon(arcPoints, {
                 color: color,
                 fillColor: color,
-                fillOpacity: 0.5,
+                fillOpacity: 0.45,
                 weight: 2
             }).addTo(mapLayersGroup);
 
-            L.polyline([[centerLat, centerLng], tipPoint], {color: '#ffffff', weight: 1.5, opacity: 0.8}).addTo(mapLayersGroup);
+            L.polyline([[item.lat, item.lng], tipPoint], {color: '#ffffff', weight: 1.2, opacity: 0.7}).addTo(mapLayersGroup);
 
             const badgeIcon = L.divIcon({
                 className: 'elite-sector-badge',
-                html: `<i class="fa-solid fa-wifi" style="color:${color};"></i> S${sectorNum} (${item.azimuth}°) | <span style="color:#00f0ff;">PCI: ${item.pci}</span>`
+                html: `<i class="fa-solid fa-wifi" style="color:${color};"></i> ${item.site} - S${sectorNum} (${item.azimuth}°) | <span style="color:#00f0ff;">PCI: ${item.pci}</span>`
             });
             const sectorMarker = L.marker(tipPoint, {icon: badgeIcon}).addTo(mapLayersGroup);
-
-            sectorMarkersMap[sectorNum] = sectorMarker;
 
             const popupHtml = `
                 <div style="text-align:center;">
                     <b style="color:${color}; font-size:13px;">${item.cell}</b><br>
-                    <b>Sector:</b> S${sectorNum} | <b>Azimuth:</b> ${item.azimuth}°<br>
-                    <b>PCI:</b> <span style="color:#00f0ff; font-weight:bold;">${item.pci}</span>
+                    <b>Site:</b> ${item.site} | <b>Sector:</b> S${sectorNum}<br>
+                    <b>Azimuth:</b> ${item.azimuth}° | <b>PCI:</b> <span style="color:#00f0ff; font-weight:bold;">${item.pci}</span>
                 </div>
             `;
             polygon.bindPopup(popupHtml);
             sectorMarker.bindPopup(popupHtml);
-
-            jumpBtnsContainer.innerHTML += `<button class="btn-jump-sector" onclick="jumpToMapSector('${sectorNum}', ${tipPoint[0]}, ${tipPoint[1]})">S${sectorNum}</button>`;
         });
+
+        if (Object.keys(uniqueSitesMap).length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
     }
 
     function copyTextToClipboard(textToCopy) {
@@ -1174,89 +1225,6 @@
         const toast = document.getElementById("toast");
         toast.className = "show";
         setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 1800);
-    }
-
-    function searchData() {
-        const query = document.getElementById('searchInput').value.trim().toLowerCase();
-        const resultsContainer = document.getElementById('resultsList');
-        const stats = document.getElementById('stats');
-        const statsSection = document.getElementById('statsSection');
-        const mapSec = document.getElementById('mapSection');
-        const quickBar = document.getElementById('sectorQuickBar');
-
-        resultsContainer.innerHTML = ''; 
-        mapSec.style.display = 'none';
-        quickBar.style.display = 'none';
-
-        if (excelData.length === 0) {
-            alert("Please upload an Excel database first!");
-            return;
-        }
-
-        if (!query) { 
-            statsSection.style.display = 'none'; 
-            return; 
-        }
-
-        const filtered = excelData.filter(item => 
-            item.site.toLowerCase().includes(query) || 
-            item.cell.toLowerCase().includes(query) || 
-            String(item.pci).toLowerCase().includes(query)
-        );
-
-        statsSection.style.display = 'block';
-        stats.innerHTML = `MATCHED SECTORS: <b style="color:var(--neon-cyan);">${filtered.length.toLocaleString()}</b>`;
-
-        if (filtered.length === 0) {
-            resultsContainer.innerHTML = `<div style="text-align:center; color:#64748b; padding:15px; font-size:11.5px; font-family:'Rajdhani'; letter-spacing:1px;">NO MATCHING SECTORS FOUND</div>`;
-            return;
-        }
-
-        renderSiteOnMap(filtered);
-
-        filtered.forEach((item, index) => {
-            const coords = `${item.lat},${item.lng}`;
-            const matchDigit = item.cell.match(/\d(?=\D*$)/);
-            const currentSectorNum = matchDigit ? matchDigit[0] : (index + 1);
-
-            resultsContainer.innerHTML += `
-                <div class="result-card" id="sector-card-${currentSectorNum}">
-                    <div class="card-top-header">
-                        <span class="site-title"><i class="fa-solid fa-tower-cell"></i> ${item.site}</span>
-                        <div class="pci-huge-badge">
-                            <span>PCI</span> ${item.pci}
-                        </div>
-                    </div>
-
-                    <div class="sector-scatter-wrapper">
-                        <div class="sector-pill ${currentSectorNum == '1' ? 'active' : ''}" onclick="jumpToSectorCard('1')">1</div>
-                        <div class="sector-pill ${currentSectorNum == '2' ? 'active' : ''}" onclick="jumpToSectorCard('2')">2</div>
-                        <div class="sector-pill ${currentSectorNum == '3' ? 'active' : ''}" onclick="jumpToSectorCard('3')">3</div>
-                        <div class="sector-pill ${currentSectorNum == '4' ? 'active' : ''}" onclick="jumpToSectorCard('4')">4</div>
-                    </div>
-
-                    <div class="card-details-grid">
-                        <div class="info-box">
-                            <div class="info-label">Cell Name</div>
-                            <div class="info-value">${item.cell || '-'}</div>
-                        </div>
-                        <div class="info-box">
-                            <div class="info-label">Azimuth Angle</div>
-                            <div class="info-value" style="color:var(--neon-cyan);">${!isNaN(item.azimuth) ? item.azimuth + '°' : '-'}</div>
-                        </div>
-                    </div>
-
-                    <div class="card-details-grid" style="grid-template-columns: 1fr;">
-                        <div class="info-box" style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div class="info-label">GPS Coords</div>
-                                <div class="info-value" style="color:var(--neon-cyan);">${coords}</div>
-                            </div>
-                            <button class="btn-top-copy" style="padding:6px 14px; font-size:10.5px;" onclick="copyCardCoords('${coords}')">COPY</button>
-                        </div>
-                    </div>
-                </div>`;
-        });
     }
 </script>
 
