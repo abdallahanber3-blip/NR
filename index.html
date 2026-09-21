@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#020205">
+
+    <title>EDS | Engineering Drive Test Suite</title>
+    <!-- XLSX Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Google Ultra-Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Syne:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-magenta: #ff007f;
+            --neon-cyan: #00f0ff;
+            --neon-purple: #9d00ff;
+            --cyber-gradient: linear-gradient(135deg, #ff007f 0%, #9d00ff 50%, #00f0ff 100%);
+            --glass-bg: rgba(10, 10, 18, 0.75);
+            --glass-border: rgba(0, 240, 255, 0.3);
+            --bg-deep: #020205;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020205;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-purple);
+            border-radius: 10px;
+            box-shadow: 0 0 8px var(--neon-purple);
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(157, 0, 255, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.06) 0%, transparent 60%);
+            background-attachment: fixed;
+            padding: 16px 10px 60px 10px;
+            color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 30px 20px 80px 20px; }
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 580px;
+        }
+
+        @media (min-width: 1024px) {
+            .app-container { max-width: 1240px; }
+        }
+
+        .app-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(200%);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 20px 16px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 3px rgba(0, 240, 255, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .app-card { padding: 36px 30px; border-radius: 36px; }
+        }
+
+        .app-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+
+        /* شعار EDS 3D المتناسق مع الاختصار */
+        .vortex-logo-container {
+            position: relative;
+            width: 95px;
+            height: 95px;
+            perspective: 1000px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .vortex-cube {
+            position: relative;
+            width: 58px;
+            height: 58px;
+            transform-style: preserve-3d;
+            animation: vortexSpin 7s linear infinite;
+        }
+
+        @keyframes vortexSpin {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+
+        .vortex-face {
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            background: rgba(10, 10, 25, 0.88);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--neon-magenta);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(157, 0, 255, 0.3);
+            backdrop-filter: blur(6px);
+        }
+
+        .vortex-face.front  { transform: translateZ(29px); color: var(--neon-cyan); }
+        .vortex-face.back   { transform: rotateY(180deg) translateZ(29px); color: var(--neon-magenta); font-size: 14px; }
+        .vortex-face.right  { transform: rotateY(90deg) translateZ(29px); color: #fff; }
+        .vortex-face.left   { transform: rotateY(-90deg) translateZ(29px); color: var(--neon-purple); }
+        .vortex-face.top    { transform: rotateX(90deg) translateZ(29px); font-size: 18px; color: #00ffcc; }
+        .vortex-face.bottom { transform: rotateX(-90deg) translateZ(29px); font-size: 15px; }
+
+        .vortex-orbit {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 0, 127, 0.5);
+            animation: orbitPulse 4s linear infinite;
+            pointer-events: none;
+        }
+
+        .vortex-orbit-2 {
+            position: absolute;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            border: 1.5px dotted rgba(0, 240, 255, 0.6);
+            animation: orbitPulseRev 6s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes orbitPulse {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.05); border-color: rgba(0, 240, 255, 0.8); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes orbitPulseRev {
+            0% { transform: rotate(360deg) scale(1.02); }
+            100% { transform: rotate(0deg) scale(1.02); }
+        }
+
+        .app-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 2.5px;
+            background: var(--cyber-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.4));
+            text-align: center;
+        }
+
+        .app-title .badge-eds {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            background: rgba(0, 240, 255, 0.12);
+            border: 1.2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 3px 10px;
+            border-radius: 8px;
+            -webkit-text-fill-color: var(--neon-cyan);
+            letter-spacing: 1.5px;
+        }
+
+        .app-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            color: #94a3b8;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .upload-card {
+            background: rgba(6, 6, 12, 0.75);
+            border: 2px dashed rgba(157, 0, 255, 0.35);
+            border-radius: 20px;
+            padding: 20px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .upload-card:hover {
+            background: rgba(157, 0, 255, 0.05);
+            border-color: var(--neon-cyan);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            background: var(--cyber-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .btn-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--cyber-gradient);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        .search-wrapper {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .search-wrapper { flex-direction: row; }
+        }
+
+        .input-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-cyan);
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 14px 14px 46px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(2, 2, 5, 0.85);
+            border: 1.5px solid rgba(0, 240, 255, 0.25);
+            border-radius: 14px;
+            color: #fff;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-action-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-search, .btn-my-gps {
+            flex: 1;
+            padding: 13px;
+            border-radius: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-search {
+            background: var(--cyber-gradient);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(255, 0, 127, 0.3);
+        }
+
+        .btn-my-gps {
+            background: rgba(0, 240, 255, 0.08);
+            color: var(--neon-cyan);
+            border: 1.5px solid var(--neon-cyan);
+        }
+
+        .active-tags-container {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            background: rgba(4, 4, 10, 0.85);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1.2px solid rgba(157, 0, 255, 0.3);
+            align-items: center;
+        }
+
+        .site-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 240, 255, 0.12);
+            border: 1px solid var(--neon-cyan);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12.5px;
+            font-weight: 700;
+        }
+
+        .site-tag-remove {
+            background: rgba(255, 0, 127, 0.2);
+            color: var(--neon-magenta);
+            border: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .site-tag-remove:hover {
+            background: var(--neon-magenta);
+            color: #fff;
+        }
+
+        .map-section {
+            margin-top: 14px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .map-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 240, 255, 0.05);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1.2px solid var(--neon-cyan);
+            gap: 8px;
+        }
+
+        .pro-coords-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Rajdhani', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .btn-top-copy {
+            background: var(--cyber-gradient);
+            border: none;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .map-container-wrapper {
+            position: relative;
+            width: 100%;
+            height: 420px;
+            border-radius: 20px;
+            border: 1.5px solid rgba(0, 240, 255, 0.25);
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .map-container-wrapper { height: 520px; }
+        }
+
+        #siteMap {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .leaflet-control-layers {
+            background: rgba(2, 2, 12, 0.9) !important;
+            backdrop-filter: blur(16px);
+            border: 1.2px solid var(--neon-cyan) !important;
+            border-radius: 12px !important;
+            color: #fff !important;
+            padding: 6px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+        }
+        .leaflet-control-layers label {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            color: #00f0ff;
+            cursor: pointer;
+        }
+
+        .map-side-control-panel {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            background: rgba(2, 2, 12, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1.2px solid var(--neon-cyan);
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-width: 180px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .map-site-side-btn {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid var(--neon-cyan);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .map-site-side-btn:hover {
+            background: var(--cyber-gradient);
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+            transform: scale(1.02);
+        }
+
+        .bottom-sites-selector-bar {
+            background: rgba(4, 4, 12, 0.85);
+            border: 1.2px solid var(--neon-purple);
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bottom-sites-buttons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .site-selector-tab-btn {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1.5px solid rgba(0, 240, 255, 0.5);
+            color: #fff;
+            padding: 11px 22px;
+            border-radius: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .site-selector-tab-btn i {
+            font-size: 16px;
+            color: var(--neon-cyan);
+        }
+
+        .site-selector-tab-btn:hover, .site-selector-tab-btn.active {
+            background: var(--cyber-gradient);
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInUpCard {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-list {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 1024px) {
+            .results-list {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .result-card {
+            background: rgba(10, 10, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(157, 0, 255, 0.25);
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            animation: fadeInUpCard 0.4s ease forwards;
+            transition: all 0.25s ease;
+        }
+
+        .result-card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 20px 50px rgba(0, 240, 255, 0.25);
+        }
+
+        .card-top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1.2px dashed rgba(157, 0, 255, 0.2);
+            padding-bottom: 12px;
+        }
+
+        .site-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .site-title i { color: var(--neon-cyan); }
+
+        .pci-huge-badge {
+            background: rgba(157, 0, 255, 0.1);
+            color: var(--neon-cyan);
+            border: 1.2px solid var(--neon-purple);
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Rajdhani', monospace;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .info-box {
+            background: rgba(2, 2, 5, 0.65);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1.2px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .info-label {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #f3f4f6;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .sectors-breakdown-card {
+            background: rgba(4, 4, 12, 0.85);
+            border: 1.2px solid rgba(0, 240, 255, 0.25);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sectors-grid-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        @media (min-width: 640px) {
+            .sectors-grid-list { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .sector-mini-badge {
+            background: rgba(0, 240, 255, 0.08);
+            border: 1.5px solid var(--neon-cyan);
+            border-radius: 14px;
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.05);
+        }
+
+        .dev-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .dev-footer span { color: var(--neon-cyan); font-weight: 700; }
+
+        #toast {
+            visibility: hidden;
+            min-width: 220px;
+            background: var(--cyber-gradient);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 12px;
+            padding: 12px 18px;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.5);
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        #toast.show {
+            visibility: hidden;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-3px);
+            visibility: visible;
+        }
+
+        .tower-marker-icon {
+            width: 36px;
+            height: 36px;
+            background: radial-gradient(circle, var(--neon-cyan) 30%, transparent 75%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #020205;
+            font-size: 13px;
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .user-gps-marker {
+            width: 32px;
+            height: 32px;
+            background: radial-gradient(circle, var(--neon-magenta) 20%, transparent 70%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            box-shadow: 0 0 15px var(--neon-magenta);
+        }
+
+        .elite-sector-badge {
+            background: rgba(2, 2, 5, 0.95) !important;
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--neon-cyan) !important;
+            color: #ffffff !important;
+            border-radius: 6px;
+            padding: 3px 8px !important;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap !important;
+            width: max-content !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            transform: translateY(-4px);
+        }
+
+        .site-name-map-label {
+            background: linear-gradient(135deg, rgba(2, 2, 16, 0.95) 0%, rgba(20, 10, 35, 0.95) 100%) !important;
+            backdrop-filter: blur(8px);
+            border: 1.2px solid var(--neon-cyan) !important;
+            color: #ffffff !important;
+            border-radius: 20px !important;
+            padding: 5px 12px !important;
+            font-family: 'Syne', sans-serif;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap !important;
+            width: max-content !important;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5), inset 0 1px 2px rgba(0, 240, 255, 0.3);
+            transform: translateY(-26px);
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-card">
+        <div class="app-header">
+            <!-- شعار EDS 3D المتناسق -->
+            <div class="vortex-logo-container">
+                <div class="vortex-orbit"></div>
+                <div class="vortex-orbit-2"></div>
+                <div class="vortex-cube">
+                    <div class="vortex-face front">EDS</div>
+                    <div class="vortex-face back"><i class="fa-solid fa-tower-broadcast"></i></div>
+                    <div class="vortex-face right"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="vortex-face left"><i class="fa-solid fa-network-wired"></i></div>
+                    <div class="vortex-face top">5G</div>
+                    <div class="vortex-face bottom"><i class="fa-solid fa-satellite-dish"></i></div>
+                </div>
+            </div>
+
+            <div class="app-title">EDS <span class="badge-eds">SUITE</span></div>
+            <div class="app-subtitle">Engineering Drive Test Suite</div>
+        </div>
+
+        <div class="upload-card" onclick="document.getElementById('excelFile').click()">
+            <i class="fa-solid fa-cloud-arrow-down upload-icon"></i>
+            <div style="font-weight: 700; font-size: 14px; font-family: 'Rajdhani'; color: #fff; letter-spacing: 1px;">UPLOAD SITE CONFIG DATABASE</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 3px;">Excel Network Sheet (.xlsx, .xls)</div>
+            <span class="btn-upload"><i class="fa-solid fa-file-shield"></i> BROWSE FILE</span>
+            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;" onchange="handleFile(event)">
+            <div id="fileStatus" style="margin-top:10px; font-size:12px; text-align:center;"></div>
+        </div>
+
+        <div class="search-wrapper">
+            <div class="input-box">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <input type="text" id="searchInput" placeholder="Type Site Name (e.g. CAI01) and click LOCATE..." onkeyup="if(event.key === 'Enter') addSiteTag()">
+            </div>
+            <div class="btn-action-group">
+                <button class="btn-search" onclick="addSiteTag()">
+                    <i class="fa-solid fa-bolt-lightning"></i> LOCATE
+                </button>
+                <button class="btn-my-gps" onclick="locateUserGPS()">
+                    <i class="fa-solid fa-location-crosshairs"></i> MY GPS
+                </button>
+            </div>
+        </div>
+
+        <div id="activeTagsContainer" class="active-tags-container">
+            <span style="font-family: 'Rajdhani'; font-size: 11px; color: var(--neon-cyan); font-weight: 700;"><i class="fa-solid fa-tags"></i> ACTIVE SITES:</span>
+            <div id="tagsList" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;"></div>
+        </div>
+
+        <div id="mapSection" class="map-section">
+            <div class="map-header-bar">
+                <div class="pro-coords-display">
+                    <i class="fa-solid fa-location-dot" style="color:var(--neon-cyan);"></i>
+                    <span id="topCoordsText">Multi-Sites View</span>
+                </div>
+                <button class="btn-top-copy" onclick="copyTopCoords()">
+                    <i class="fa-regular fa-copy"></i> COPY
+                </button>
+            </div>
+
+            <div class="map-container-wrapper">
+                <div id="siteMap"></div>
+                <!-- قائمة Fly To الجانبية -->
+                <div id="mapSideControlPanel" class="map-side-control-panel" style="display: none;">
+                    <div style="font-family: 'Rajdhani'; font-size: 10px; color: var(--neon-cyan); font-weight: 700; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 4px; margin-bottom: 2px;"><i class="fa-solid fa-map-location-dot"></i> FLY TO SITES</div>
+                    <div id="mapSideButtonsList" style="display: flex; flex-direction: column; gap: 4px;"></div>
+                </div>
+            </div>
+
+            <!-- أزرار اختيار السايت أسفل الخريطة -->
+            <div id="bottomSitesSelectorBar" class="bottom-sites-selector-bar" style="display: none;">
+                <div style="font-family: 'Rajdhani'; font-size: 12px; font-weight: 700; color: var(--neon-cyan); display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-list-check"></i> SELECT ACTIVE SITE TO VIEW ALL ITS SECTORS (NO MAP FLY):
+                </div>
+                <div id="bottomSitesButtonsGrid" class="bottom-sites-buttons-grid"></div>
+            </div>
+        </div>
+
+        <div id="statsSection" style="display:none; text-align:center; margin-top:14px;">
+            <span id="stats" style="font-size: 12px; color: #94a3b8; font-family: 'Rajdhani', sans-serif; letter-spacing:1px; font-weight:700;"></span>
+        </div>
+
+        <div id="resultsList" class="results-list"></div>
+    </div>
+
+    <div class="dev-footer">
+        Engineered by <span>Abdullah Ali</span>
+    </div>
+</div>
+
+<div id="toast">COORDINATES COPIED!</div>
+
+<script>
+    let excelData = [];
+    let map = null;
+    let mapLayersGroup = null;
+    let sectorsLayersGroup = null; 
+    let currentSiteCoords = "";
+    let lastSiteLat = null;
+    let lastSiteLng = null;
+    let userMarker = null;
+
+    let activeSiteQueries = [];
+    let activeSelectedSite = "";
+
+    function handleFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const statusDiv = document.getElementById('fileStatus');
+        statusDiv.innerHTML = `<span style="color: var(--neon-cyan);"><i class="fa-solid fa-spinner fa-spin"></i> Parsing Database...</span>`;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheet];
+                const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+
+                excelData = json.map(row => {
+                    const getVal = (keyName) => {
+                        const foundKey = Object.keys(row).find(k => k.trim().toLowerCase() === keyName.toLowerCase());
+                        return foundKey ? String(row[foundKey]).trim() : '';
+                    };
+
+                    return {
+                        site: getVal('gNodeB Name') || getVal('Site Name') || getVal('eNodeB Name'),
+                        cell: getVal('Cell Name'),
+                        pci: getVal('PCI'),
+                        azimuth: parseFloat(getVal('Azimuth')) || 0,
+                        lat: parseFloat(getVal('Latitude')),
+                        lng: parseFloat(getVal('Longitude'))
+                    };
+                });
+
+                statusDiv.innerHTML = `<span style="color: var(--neon-cyan); font-weight:700;"><i class="fa-solid fa-circle-check"></i> Loaded ${excelData.length.toLocaleString()} Records</span>`;
+            } catch (err) {
+                statusDiv.innerHTML = `<span style="color: #ff007f;"><i class="fa-solid fa-triangle-exclamation"></i> Error Reading File</span>`;
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function initMap(lat, lng, zoomLevel = 17) {
+        document.getElementById('mapSection').style.display = 'flex';
+
+        if (!map) {
+            const googleStreets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
+            });
+
+            const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps Satellite'
+            });
+
+            const googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps Hybrid'
+            });
+
+            const cartoVoyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20,
+                subdomains: 'abcd',
+                attribution: '&copy; OpenStreetMap & CARTO'
+            });
+
+            map = L.map('siteMap', {
+                maxZoom: 20,
+                minZoom: 5,
+                layers: [googleHybrid]
+            }).setView([lat, lng], zoomLevel);
+
+            const baseLayers = {
+                "Google Hybrid (أسماء الشوارع + أقمار)": googleHybrid,
+                "Google Satellite (أقمار صناعية صافية)": googleSat,
+                "Google Streets (شوارع فقط)": googleStreets,
+                "Carto Voyager": cartoVoyager
+            };
+
+            L.control.layers(baseLayers).addTo(map);
+
+            mapLayersGroup = L.layerGroup().addTo(map);
+            sectorsLayersGroup = L.layerGroup().addTo(map); 
+
+            map.on('zoomend', function() {
+                const currentZoom = map.getZoom();
+                if (currentZoom >= 15) {
+                    if (!map.hasLayer(sectorsLayersGroup)) {
+                        map.addLayer(sectorsLayersGroup);
+                    }
+                } else {
+                    if (map.hasLayer(sectorsLayersGroup)) {
+                        map.removeLayer(sectorsLayersGroup);
+                    }
+                }
+            });
+        } else {
+            map.setView([lat, lng], zoomLevel);
+            mapLayersGroup.clearLayers();
+            sectorsLayersGroup.clearLayers();
+        }
+
+        setTimeout(() => { map.invalidateSize(); }, 200);
+    }
+
+    function addSiteTag() {
+        const inputElem = document.getElementById('searchInput');
+        const queryVal = inputElem.value.trim();
+
+        if (excelData.length === 0) {
+            alert("Please upload an Excel database first!");
+            return;
+        }
+
+        if (!queryVal) return;
+
+        if (!activeSiteQueries.includes(queryVal)) {
+            activeSiteQueries.push(queryVal);
+        }
+
+        activeSelectedSite = queryVal;
+        inputElem.value = '';
+        updateActiveTagsUI();
+        processAndRenderAllSites();
+
+        flyToSiteOnly(queryVal);
+    }
+
+    function selectSiteTabWithoutFly(siteName) {
+        activeSelectedSite = siteName;
+        updateActiveTagsUI();
+        processAndRenderAllSites();
+    }
+
+    function flyToSiteTab(siteName) {
+        activeSelectedSite = siteName;
+        updateActiveTagsUI();
+        processAndRenderAllSites();
+        flyToSiteOnly(siteName);
+    }
+
+    function flyToSiteOnly(siteName) {
+        if (!excelData || excelData.length === 0) return;
+
+        const qClean = siteName.toLowerCase();
+        const matchRecord = excelData.find(item => {
+            if (!item.site || isNaN(item.lat) || isNaN(item.lng)) return false;
+            const sClean = item.site.toLowerCase();
+            return sClean === qClean || sClean.includes(qClean) || qClean.includes(sClean);
+        });
+
+        if (matchRecord) {
+            lastSiteLat = matchRecord.lat;
+            lastSiteLng = matchRecord.lng;
+            currentSiteCoords = `${matchRecord.lat}, ${matchRecord.lng}`;
+            document.getElementById('topCoordsText').innerText = `Site: ${matchRecord.site} (${currentSiteCoords})`;
+
+            if (map) {
+                map.flyTo([matchRecord.lat, matchRecord.lng], 18, { duration: 1.2 });
+
+                const toast = document.getElementById("toast");
+                toast.innerText = `FLY TO: ${matchRecord.site}`;
+                showToast();
+            }
+        }
+    }
+
+    function removeSiteTag(event, siteName) {
+        event.stopPropagation();
+        activeSiteQueries = activeSiteQueries.filter(s => s !== siteName);
+
+        if (activeSelectedSite === siteName) {
+            activeSelectedSite = activeSiteQueries.length > 0 ? activeSiteQueries[activeSiteQueries.length - 1] : "";
+        }
+
+        updateActiveTagsUI();
+        processAndRenderAllSites();
+        if (activeSelectedSite) {
+            flyToSiteOnly(activeSelectedSite);
+        }
+    }
+
+    function updateActiveTagsUI() {
+        const container = document.getElementById('activeTagsContainer');
+        const tagsList = document.getElementById('tagsList');
+        const sidePanel = document.getElementById('mapSideControlPanel');
+        const sideButtonsList = document.getElementById('mapSideButtonsList');
+        const bottomSelectorBar = document.getElementById('bottomSitesSelectorBar');
+        const bottomButtonsGrid = document.getElementById('bottomSitesButtonsGrid');
+
+        tagsList.innerHTML = '';
+        sideButtonsList.innerHTML = '';
+        bottomButtonsGrid.innerHTML = '';
+
+        if (activeSiteQueries.length === 0) {
+            container.style.display = 'none';
+            sidePanel.style.display = 'none';
+            bottomSelectorBar.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'flex';
+        sidePanel.style.display = 'flex';
+        bottomSelectorBar.style.display = 'flex';
+
+        activeSiteQueries.forEach(site => {
+            tagsList.innerHTML += `
+                <div class="site-tag-pill">
+                    <span><i class="fa-solid fa-tower-cell"></i> ${site}</span>
+                    <button class="site-tag-remove" onclick="removeSiteTag(event, '${site}')"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+
+            sideButtonsList.innerHTML += `
+                <button class="map-site-side-btn" type="button" onclick="flyToSiteTab('${site}')" title="${site}">
+                    <i class="fa-solid fa-crosshairs"></i> ${site}
+                </button>
+            `;
+
+            const isActiveClass = (site === activeSelectedSite) ? 'active' : '';
+            bottomButtonsGrid.innerHTML += `
+                <button class="site-selector-tab-btn ${isActiveClass}" type="button" onclick="selectSiteTabWithoutFly('${site}')">
+                    <i class="fa-solid fa-tower-cell"></i> ${site}
+                </button>
+            `;
+        });
+    }
+
+    function locateUserGPS() {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        const toast = document.getElementById("toast");
+        toast.innerText = "REQUESTING GPS PERMISSION...";
+        showToast();
+
+        navigator.geolocation.getCurrentPosition((position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+            if (!map) {
+                initMap(userLat, userLng, 17);
+            }
+
+            if (userMarker) {
+                map.removeLayer(userMarker);
+            }
+
+            const gpsIcon = L.divIcon({
+                className: 'custom-user-marker',
+                html: `<div class="user-gps-marker"><i class="fa-solid fa-user-shield"></i></div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            userMarker = L.marker([userLat, userLng], {icon: gpsIcon}).addTo(map);
+            userMarker.bindPopup(`<b>Your GPS Location</b><br>Lat: ${userLat.toFixed(6)}<br>Lng: ${userLng.toFixed(6)}`).openPopup();
+
+            if (lastSiteLat && lastSiteLng) {
+                const distanceMeters = map.distance([userLat, userLng], [lastSiteLat, lastSiteLng]);
+                const distText = distanceMeters > 1000 ? (distanceMeters / 1000).toFixed(2) + " km" : distanceMeters.toFixed(0) + " meters";
+
+                L.polyline([[userLat, userLng], [lastSiteLat, lastSiteLng]], {
+                    color: '#ff007f',
+                    weight: 3,
+                    dashArray: '5, 5',
+                    opacity: 0.9
+                }).addTo(mapLayersGroup);
+
+                toast.innerText = `DISTANCE: ${distText}`;
+            } else {
+                toast.innerText = `GPS LOCKED!`;
+                map.flyTo([userLat, userLng], 17, { duration: 1.5 });
+            }
+            showToast();
+        }, () => {
+            alert("Unable to retrieve your location.");
+        }, { enableHighAccuracy: true });
+    }
+
+    function getDestinationPoint(lat, lng, azimuthDeg, distanceMeters) {
+        const R = 6378137;
+        const brng = azimuthDeg * (Math.PI / 180);
+        const lat1 = lat * (Math.PI / 180);
+        const lon1 = lng * (Math.PI / 180);
+
+        const lat2 = Math.asin(Math.sin(lat1) * Math.cos(distanceMeters / R) +
+                     Math.cos(lat1) * Math.sin(distanceMeters / R) * Math.cos(brng));
+        const lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(distanceMeters / R) * Math.cos(lat1),
+                     Math.cos(distanceMeters / R) - Math.sin(lat1) * Math.sin(lat2));
+
+        return [lat2 * (180 / Math.PI), lon2 * (180 / Math.PI)];
+    }
+
+    function createArcSectorPoints(centerLat, centerLng, startAngle, endAngle, radius) {
+        const points = [[centerLat, centerLng]];
+        const step = 8; 
+        for (let a = startAngle; a <= endAngle; a += step) {
+            points.push(getDestinationPoint(centerLat, centerLng, a, radius));
+        }
+        points.push(getDestinationPoint(centerLat, centerLng, endAngle, radius));
+        return points;
+    }
+
+    function processAndRenderAllSites() {
+        const resultsContainer = document.getElementById('resultsList');
+        const stats = document.getElementById('stats');
+        const statsSection = document.getElementById('statsSection');
+        const mapSec = document.getElementById('mapSection');
+
+        resultsContainer.innerHTML = '';
+
+        if (activeSiteQueries.length === 0) {
+            statsSection.style.display = 'none';
+            mapSec.style.display = 'none';
+            return;
+        }
+
+        let allMatchedRecords = [];
+        activeSiteQueries.forEach(query => {
+            const qLower = query.toLowerCase();
+            const matches = excelData.filter(item => {
+                if (!item.site) return false;
+                const sClean = item.site.toLowerCase();
+                return sClean === qLower || sClean.includes(qLower) || qLower.includes(sClean);
+            });
+            allMatchedRecords = allMatchedRecords.concat(matches);
+        });
+
+        statsSection.style.display = 'block';
+        stats.innerHTML = `ACTIVE SITES: <b style="color:var(--neon-cyan);">${activeSiteQueries.length}</b> | TOTAL SECTORS: <b style="color:var(--neon-cyan);">${allMatchedRecords.length.toLocaleString()}</b>`;
+
+        if (allMatchedRecords.length === 0) {
+            resultsContainer.innerHTML = `<div style="text-align:center; color:#64748b; padding:15px; font-family:'Rajdhani';">NO MATCHING RECORDS FOUND</div>`;
+            return;
+        }
+
+        renderSitesOnMap(allMatchedRecords);
+
+        if (!activeSelectedSite && activeSiteQueries.length > 0) {
+            activeSelectedSite = activeSiteQueries[0];
+        }
+
+        const activeSiteRecords = allMatchedRecords.filter(item => {
+            const sLower = item.site.toLowerCase();
+            const selLower = activeSelectedSite.toLowerCase();
+            return sLower === selLower || sLower.includes(selLower) || selLower.includes(sLower);
+        });
+
+        if (activeSiteRecords.length === 0) return;
+
+        const firstItem = activeSiteRecords[0];
+        const coords = `${firstItem.lat}, ${firstItem.lng}`;
+
+        currentSiteCoords = coords;
+        lastSiteLat = firstItem.lat;
+        lastSiteLng = firstItem.lng;
+        document.getElementById('topCoordsText').innerText = `Site: ${firstItem.site} (${currentSiteCoords})`;
+
+        let sectorsHtml = '';
+        activeSiteRecords.forEach((sec, idx) => {
+            const matchDigit = sec.cell.match(/\d(?=\D*$)/);
+            const sectorNum = matchDigit ? matchDigit[0] : (idx + 1);
+
+            sectorsHtml += `
+                <div class="sector-mini-badge">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-family:'Rajdhani'; font-size:13px; color:var(--neon-cyan); font-weight:800;"><i class="fa-solid fa-wifi"></i> SECTOR ${sectorNum}</span>
+                        <span style="font-family:'Rajdhani'; font-size:12px; color:#fff; font-weight:700; background:rgba(0,240,255,0.15); padding:2px 8px; border-radius:6px; border:1px solid rgba(0,240,255,0.4);">${sec.azimuth}°</span>
+                    </div>
+                    <div style="font-size:12px; font-weight:600; color:#f3f4f6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${sec.cell}">${sec.cell || 'N/A'}</div>
+                    <div style="font-family:'Rajdhani', monospace; font-size:14px; font-weight:800; color:#fff; background:rgba(157,0,255,0.2); padding:6px 10px; border-radius:8px; border:1px solid var(--neon-purple); display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                        <span style="font-size:11px; color:#94a3b8; font-weight:700;">PCI:</span>
+                        <span style="color:var(--neon-cyan); font-size:15px; letter-spacing:1px;">${sec.pci}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        resultsContainer.innerHTML = `
+            <div class="result-card">
+                <div class="card-top-header">
+                    <span class="site-title"><i class="fa-solid fa-tower-cell"></i> ${firstItem.site}</span>
+                    <div class="pci-huge-badge">
+                        <span>SECTORS</span> ${activeSiteRecords.length}
+                    </div>
+                </div>
+
+                <div class="card-details-grid" style="grid-template-columns: 1fr;">
+                    <div class="info-box" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div class="info-label">GPS Coords</div>
+                            <div class="info-value" style="color:var(--neon-cyan);">${coords}</div>
+                        </div>
+                        <button class="btn-top-copy" style="padding:6px 14px; font-size:10.5px;" onclick="copyCardCoords('${coords}')">COPY</button>
+                    </div>
+                </div>
+
+                <div class="sectors-breakdown-card">
+                    <div style="font-family:'Rajdhani'; font-size:12px; font-weight:700; color:var(--neon-cyan); display:flex; align-items: center; gap:6px; letter-spacing:0.5px;">
+                        <i class="fa-solid fa-network-wired"></i> ALL SECTORS & CELLS BREAKDOWN (${activeSiteRecords.length})
+                    </div>
+                    <div class="sectors-grid-list">
+                        ${sectorsHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderSitesOnMap(siteRecords) {
+        if (!siteRecords || siteRecords.length === 0) return;
+
+        const uniqueSitesMap = {};
+        siteRecords.forEach(item => {
+            if (!uniqueSitesMap[item.site] && !isNaN(item.lat) && !isNaN(item.lng)) {
+                uniqueSitesMap[item.site] = { lat: item.lat, lng: item.lng };
+            }
+        });
+
+        const firstValidKey = Object.keys(uniqueSitesMap)[0];
+        if (!firstValidKey) return;
+
+        const firstLat = uniqueSitesMap[firstValidKey].lat;
+        const firstLng = uniqueSitesMap[firstValidKey].lng;
+
+        if (!map) {
+            initMap(firstLat, firstLng, 17);
+        } else {
+            mapLayersGroup.clearLayers();
+            sectorsLayersGroup.clearLayers();
+        }
+
+        const neonColors = ['#00f0ff', '#ff007f', '#9d00ff', '#00ffcc', '#ffaa00'];
+
+        Object.keys(uniqueSitesMap).forEach(siteName => {
+            const sLat = uniqueSitesMap[siteName].lat;
+            const sLng = uniqueSitesMap[siteName].lng;
+
+            const siteLabelIcon = L.divIcon({
+                className: 'site-name-map-label',
+                html: `<i class="fa-solid fa-tower-cell" style="color:var(--neon-cyan);"></i> ${siteName}`
+            });
+            L.marker([sLat, sLng], { icon: siteLabelIcon }).addTo(mapLayersGroup);
+
+            const towerIcon = L.divIcon({
+                className: 'custom-tower-marker',
+                html: `<div class="tower-marker-icon"><i class="fa-solid fa-tower-cell"></i></div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+            L.marker([sLat, sLng], {icon: towerIcon}).addTo(mapLayersGroup);
+        });
+
+        siteRecords.forEach((item, index) => {
+            if (isNaN(item.azimuth) || isNaN(item.lat) || isNaN(item.lng)) return;
+
+            const matchDigit = item.cell.match(/\d(?=\D*$)/);
+            const sectorNum = matchDigit ? matchDigit[0] : (index + 1);
+
+            const beamLength = 110; 
+            const beamHalfAngle = 25; 
+            const color = neonColors[index % neonColors.length];
+
+            const leftAngle = item.azimuth - beamHalfAngle;
+            const rightAngle = item.azimuth + beamHalfAngle;
+
+            const arcPoints = createArcSectorPoints(item.lat, item.lng, leftAngle, rightAngle, beamLength);
+            const tipPoint = getDestinationPoint(item.lat, item.lng, item.azimuth, beamLength + 15);
+
+            L.polygon(arcPoints, {
+                color: color, fillColor: color, fillOpacity: 0.45, weight: 1.8
+            }).addTo(sectorsLayersGroup);
+
+            L.polyline([[item.lat, item.lng], tipPoint], {color: '#ffffff', weight: 1.2, opacity: 0.7}).addTo(sectorsLayersGroup);
+
+            const badgeIcon = L.divIcon({
+                className: 'elite-sector-badge',
+                html: `<i class="fa-solid fa-wifi" style="color:${color};"></i> S${sectorNum} (${item.azimuth}°) | <span style="color:#00f0ff;">PCI:${item.pci}</span>`
+            });
+            L.marker(tipPoint, {icon: badgeIcon}).addTo(sectorsLayersGroup);
+        });
+
+        if (map.getZoom() >= 15) {
+            if (!map.hasLayer(sectorsLayersGroup)) {
+                map.addLayer(sectorsLayersGroup);
+            }
+        } else {
+            if (map.hasLayer(sectorsLayersGroup)) {
+                map.removeLayer(sectorsLayersGroup);
+            }
+        }
+    }
+
+    function copyTextToClipboard(textToCopy) {
+        if (!textToCopy) {
+            alert("No coordinates available to copy!");
+            return;
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const toast = document.getElementById("toast");
+                toast.innerText = "COORDINATES COPIED!";
+                showToast();
+            }).catch(() => {
+                fallbackCopyText(textToCopy);
+            });
+        } else {
+            fallbackCopyText(textToCopy);
+        }
+    }
+
+    function fallbackCopyText(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            const toast = document.getElementById("toast");
+            toast.innerText = "COORDINATES COPIED!";
+            showToast();
+        } catch (err) {
+            alert("Failed to copy coordinates");
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function copyTopCoords() {
+        if (!currentSiteCoords) { 
+            if (excelData.length > 0 && activeSelectedSite) {
+                const found = excelData.find(i => i.site.toLowerCase().includes(activeSelectedSite.toLowerCase()));
+                if (found) currentSiteCoords = `${found.lat}, ${found.lng}`;
+            }
+        }
+        copyTextToClipboard(currentSiteCoords);
+    }
+
+    function copyCardCoords(coordsText) {
+        currentSiteCoords = coordsText;
+        copyTextToClipboard(coordsText);
+    }
+
+    function showToast() {
+        const toast = document.getElementById("toast");
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 1800);
+    }
+</script>
+
+</body>
+</html>
